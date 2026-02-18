@@ -1,0 +1,28 @@
+# MacOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/.next/
+**/*.exe
+**/*.test
+**/*.out
+
+# Project specific
+backend/uploads/
+aiotchain/.next/
+aiotchain/node_modules/
