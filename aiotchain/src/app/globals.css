@@ -1,0 +1,179 @@
+@import "tailwindcss";
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #f1f5f9;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --border: #1e293b;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Tiptap Code Block Styles */
+.prose pre {
+  background: #0f172a;
+  border-radius: 0.75rem;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #1e293b;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.dark .prose pre {
+  background: #020617;
+  border-color: #1e293b;
+}
+
+.prose pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.875rem;
+}
+
+/* Prose Dark Mode Overrides */
+.dark .prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: #94a3b8;
+  --tw-prose-links: #3b82f6;
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: #64748b;
+  --tw-prose-bullets: #475569;
+  --tw-prose-hr: #1e293b;
+  --tw-prose-quotes: #94a3b8;
+  --tw-prose-quote-borders: #1e293b;
+  --tw-prose-captions: #64748b;
+  --tw-prose-code: #f8fafc;
+  --tw-prose-pre-code: #e2e8f0;
+  --tw-prose-pre-bg: #020617;
+  --tw-prose-th-borders: #1e293b;
+  --tw-prose-td-borders: #1e293b;
+}
+
+/* Lowlight/Highlight.js Styles */
+.prose pre code .hljs-comment,
+.prose pre code .hljs-quote {
+  color: #64748b;
+  font-style: italic;
+}
+
+.prose pre code .hljs-keyword,
+.prose pre code .hljs-selector-tag {
+  color: #7dd3fc; /* Sky blue for keywords */
+}
+
+.prose pre code .hljs-string,
+.prose pre code .hljs-attr,
+.prose pre code .hljs-addition {
+  color: #34d399; /* Emerald green for strings/attrs */
+}
+
+.prose pre code .hljs-number,
+.prose pre code .hljs-literal,
+.prose pre code .hljs-variable,
+.prose pre code .hljs-template-variable {
+  color: #fbbf24; /* Amber for numbers/variables */
+}
+
+.prose pre code .hljs-title,
+.prose pre code .hljs-section,
+.prose pre code .hljs-function {
+  color: #818cf8; /* Indigo for functions/titles */
+}
+
+.prose pre code .hljs-name,
+.prose pre code .hljs-selector-id,
+.prose pre code .hljs-selector-class {
+  color: #f472b6; /* Pink for tags/classes */
+}
+
+.prose pre code .hljs-type,
+.prose pre code .hljs-built_in {
+  color: #fb7185; /* Rose for types/built-ins */
+}
+
+.prose pre code .hljs-symbol,
+.prose pre code .hljs-bullet,
+.prose pre code .hljs-subst,
+.prose pre code .hljs-meta,
+.prose pre code .hljs-link {
+  color: #a78bfa; /* Violet for meta/subst */
+}
+
+.prose pre code .hljs-params {
+  color: #fca5a5; /* Light red for params */
+}
+
+.prose pre code .hljs-doctag,
+.prose pre code .hljs-regexp {
+  color: #2dd4bf; /* Teal for regex/docs */
+}
+
+.hljs-formula {
+  background: #2e3440;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+.youtube-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+  margin: 1.5rem 0;
+}
+
+.youtube-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
