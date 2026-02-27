@@ -73,7 +73,7 @@ export async function login(username: string, password: string, captchaToken?: s
 
 export async function loginWithGoogle(token: string) {
   try {
-    const data = await fetchAPI<{token: string; error?: string}>("/auth/google", {
+    const data = await fetchAPI<{token: string; is_new_user: boolean; error?: string}>("/auth/google", {
       method: "POST",
       body: JSON.stringify({ token }),
     });

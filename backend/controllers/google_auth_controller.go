@@ -43,6 +43,7 @@ func GoogleLogin(c *gin.Context) {
 
 	var user models.User
 	userRepo := repository.NewUserRepository()
+	isNewUser := false
 
 	// Check if user exists by GoogleID
 	foundUser, err := userRepo.FindByGoogleID(googleID)
@@ -69,6 +70,7 @@ func GoogleLogin(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 				return
 			}
+			isNewUser = true
 		}
 	}
 
@@ -87,7 +89,8 @@ func GoogleLogin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":   tokenString,
-		"message": "Login successful",
+		"token":       tokenString,
+		"message":     "Login successful",
+		"is_new_user": isNewUser,
 	})
 }

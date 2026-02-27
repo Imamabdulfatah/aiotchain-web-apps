@@ -3,6 +3,7 @@
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { login, register } from "@/lib/auth";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,6 +17,8 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -125,28 +128,46 @@ export default function RegisterPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 ml-1">
                   Password
                 </label>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-muted text-foreground"
-                  placeholder="••••••••"
-                  onChange={handleChange}
-                />
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-muted text-foreground pr-12"
+                    placeholder="••••••••"
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 ml-1">
                   Konfirmasi Password
                 </label>
-                <input
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-muted text-foreground"
-                  placeholder="••••••••"
-                  onChange={handleChange}
-                />
+                <div className="relative">
+                  <input
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all bg-muted text-foreground pr-12"
+                    placeholder="••••••••"
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               {error && (

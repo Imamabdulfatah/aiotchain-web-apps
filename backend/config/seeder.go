@@ -9,19 +9,19 @@ import (
 
 func SeedSuperAdmin() {
 	var count int64
-	DB.Model(&models.User{}).Where("username = ?", "superadmin").Count(&count)
+	DB.Model(&models.User{}).Where("username = ?", "mr_aiotchain").Count(&count)
 
 	if count == 0 {
 		log.Println("Seeding Super Admin...")
 
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("Anonym074407@"), bcrypt.DefaultCost)
 		if err != nil {
 			log.Fatal("Gagal hash password seeder:", err)
 		}
 
 		superAdmin := models.User{
-			Username: "superadmin",
-			Email:    "admin@aiotchain.project",
+			Username: "mr_aiotchain",
+			Email:    "aiotchain.id@gmail.com",
 			Password: string(hashedPassword),
 			Role:     "super_admin",
 		}

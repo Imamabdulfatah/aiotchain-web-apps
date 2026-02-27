@@ -17,14 +17,18 @@ export default function GoogleLoginButton({ onSuccess, onError }: GoogleLoginBut
   const handleSuccess = async (response: any) => {
     setIsLoading(true);
     try {
-      await loginWithGoogle(response.credential);
+      const data = await loginWithGoogle(response.credential);
       if (onSuccess) onSuccess();
-      
-      const role = getUserRole();
-      if (role === "admin") {
-        router.push("/admin");
+
+      if (data.is_new_user) {
+        router.push("/onboarding");
       } else {
-        router.push("/profile");
+        const role = getUserRole();
+        if (role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/profile");
+        }
       }
     } catch (error: any) {
       if (onError) onError(error.message);

@@ -4,6 +4,7 @@ import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { fetchAPI } from "@/lib/api";
 import { getUserRole, login } from "@/lib/auth";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -11,6 +12,7 @@ import { Suspense, useEffect, useState } from "react";
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
   const [captchaData, setCaptchaData] = useState<{ question: string; token: string } | null>(null);
   const [error, setError] = useState("");
@@ -87,14 +89,23 @@ function LoginForm() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 ml-1">
                 Password
               </label>
-              <input
-                type="password"
-                required
-                className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-foreground bg-muted"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className="w-full px-4 py-3.5 rounded-xl border border-border focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none text-foreground bg-muted pr-12"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               <div className="mt-2 text-right">
                 <Link href="/auth/forgot-password" className="text-xs text-blue-600 hover:underline font-medium">
                   Lupa password?
