@@ -11,13 +11,13 @@ import (
 // GetAssets - Mengambil semua asset 3D
 func GetAssets(c *gin.Context) {
 	userID := c.Query("userId")
-	category := c.Query("category")
+	categoryID := c.Query("categoryId")
 	search := c.Query("search")
 	var assets []models.Asset
 
-	query := config.DB
-	if category != "" && category != "Semua" {
-		query = query.Where("category = ?", category)
+	query := config.DB.Preload("AssetCategory")
+	if categoryID != "" && categoryID != "0" {
+		query = query.Where("asset_category_id = ?", categoryID)
 	}
 
 	if search != "" {
@@ -116,6 +116,27 @@ func GetAssetByID(c *gin.Context) {
 	var asset models.Asset
 	if err := config.DB.First(&asset, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asset tidak ditemukan"})
+		return
+	}
+	c.JSON(http.StatusOK, asset)
+}
+
+// UpdateAsset - Admin mengedit asset
+func UpdateAsset(c *gin.Context) {
+	id := c.Param("id")
+	var asset models.Asset
+	if err := config.DB.First(&asset, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Asset tidak ditemukan"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&asset); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := config.DB.Save(&asset).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui asset"})
 		return
 	}
 	c.JSON(http.StatusOK, asset)

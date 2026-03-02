@@ -23,7 +23,21 @@ export default function CreateLearningPathPage() {
   const [thumbnail, setThumbnail] = useState("");
   const [certBg, setCertBg] = useState("");
   const [certColor, setCertColor] = useState("#2563eb");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [pathCategories, setPathCategories] = useState<{id: number, name: string}[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  useState(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchAPI<{id: number, name: string}[]>("/admin/path-categories");
+        setPathCategories(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadCategories();
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +48,7 @@ export default function CreateLearningPathPage() {
       title,
       description,
       difficulty,
+      categoryId: categoryId ? Number(categoryId) : undefined,
       duration: Number(duration),
       thumbnail,
       certBg,
@@ -82,6 +97,20 @@ export default function CreateLearningPathPage() {
                   className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 font-bold text-slate-700 placeholder:text-slate-300"
                   placeholder="Contoh: Menjadi Spesialis AI Dasar"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kategori Teknologi</label>
+                <select 
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 font-bold text-slate-700 outline-none cursor-pointer"
+                >
+                  <option value="">Pilih Kategori</option>
+                  {pathCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-6">

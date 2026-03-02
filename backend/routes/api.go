@@ -14,7 +14,7 @@ func SetupRouter() *gin.Engine {
 
 	// 1. PASANG CORS PERTAMA KALI (Sebelum Route)
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.209:3000", "https://aiotchain.vercel.app"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.209:3000", "https://aiotchain.vercel.app", "http://localhost:5000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-CSRF-Token"},
 		AllowCredentials: true,
@@ -60,6 +60,7 @@ func SetupRouter() *gin.Engine {
 		// Learning Path & Modules (Quizzes)
 		public.GET("/learning-paths", controllers.GetLearningPaths)
 		public.GET("/learning-paths/:id", controllers.GetLearningPath)
+		public.GET("/path-categories", controllers.GetPathCategories)
 		public.GET("/certificates/:id", controllers.GetCertificateByID)
 		public.GET("/quizzes", controllers.GetQuizzes)
 		public.GET("/quizzes/:id", controllers.GetQuiz)
@@ -68,9 +69,11 @@ func SetupRouter() *gin.Engine {
 		// Assets Public
 		public.GET("/assets", controllers.GetAssets)
 		public.GET("/assets/:id", controllers.GetAssetByID)
+		public.GET("/asset-categories", controllers.GetAssetCategories)
 		public.POST("/assets/:id/download", controllers.IncrementDownload)
 		public.GET("/assets/:id/comments", controllers.GetCommentsByAsset)
 		public.GET("/learning-paths/:id/comments", controllers.GetCommentsByPath)
+		public.GET("/resume", controllers.GetResume)
 
 		// Contact Form (Public)
 		public.POST("/contact", controllers.CreateContact)
@@ -172,11 +175,28 @@ func SetupRouter() *gin.Engine {
 		adminGroup.PUT("/submissions/:id/reject", controllers.RejectSubmission)
 
 		// --- SUPER ADMIN ONLY ROUTES ---
-		super := adminGroup.Group("/") // Use explicit slash for clarity
+		super := adminGroup.Group("") // Avoid double slash
 		super.Use(middleware.SuperAdminOnly())
 		{
+			// Category Management
+			super.GET("/categories", controllers.GetCategories)
+			super.POST("/categories", controllers.CreateCategory)
+			super.PUT("/categories/:id", controllers.UpdateCategory)
+			super.DELETE("/categories/:id", controllers.DeleteCategory)
+
+			// Path Category Management
+			super.GET("/path-categories", controllers.GetPathCategories)
+			super.POST("/path-categories", controllers.CreatePathCategory)
+			super.PUT("/path-categories/:id", controllers.UpdatePathCategory)
+			super.DELETE("/path-categories/:id", controllers.DeletePathCategory)
+
 			// Asset Management
+			super.GET("/asset-categories", controllers.GetAssetCategories)
+			super.POST("/asset-categories", controllers.CreateAssetCategory)
+			super.PUT("/asset-categories/:id", controllers.UpdateAssetCategory)
+			super.DELETE("/asset-categories/:id", controllers.DeleteAssetCategory)
 			super.POST("/assets", controllers.CreateAsset)
+			super.PUT("/assets/:id", controllers.UpdateAsset)
 			super.DELETE("/assets/:id", controllers.DeleteAsset)
 
 			// Certificate Management
@@ -198,6 +218,9 @@ func SetupRouter() *gin.Engine {
 			super.GET("/users", controllers.GetAllUsers)
 			super.PUT("/users/:id/role", controllers.UpdateUserRole)
 			super.DELETE("/users/:id", controllers.DeleteUser)
+
+			// Resume Management
+			super.PUT("/resume", controllers.UpdateResume)
 		}
 	}
 

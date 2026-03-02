@@ -6,7 +6,7 @@ import { getToken } from "@/lib/auth";
 import { compressImage } from "@/lib/image-utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CreatePost() {
   const [title, setTitle] = useState("");
@@ -15,12 +15,29 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("AI");
   const [imageUrl, setImageUrl] = useState("");
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const categories = ["AI", "IoT", "Chain", "Tutorial", "Wawasan"];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await fetchAPI<{id: number, name: string}[]>("/admin/categories");
+        if (data && data.length > 0) {
+          const names = data.map(c => c.name);
+          setDynamicCategories(names);
+          setCategory(names[0]);
+        } else {
+          setDynamicCategories(["AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+        }
+      } catch (err) {
+        setDynamicCategories(["AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const generateSlug = (text: string) => {
     return text
@@ -159,7 +176,7 @@ export default function CreatePost() {
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((cat) => (
+                  {dynamicCategories.map((cat) => (
                     <button
                       key={cat}
                       type="button"

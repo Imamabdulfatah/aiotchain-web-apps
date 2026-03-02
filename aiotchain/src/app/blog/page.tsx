@@ -22,8 +22,23 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>(["Semua"]);
 
-  const categories = ["Semua", "AI", "IoT", "Chain", "Tutorial", "Wawasan"];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await fetchAPI<{id: number, name: string}[]>("/admin/categories");
+        if (data && data.length > 0) {
+          setDynamicCategories(["Semua", ...data.map(c => c.name)]);
+        } else {
+          setDynamicCategories(["Semua", "AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+        }
+      } catch (err) {
+        setDynamicCategories(["Semua", "AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -67,7 +82,7 @@ export default function BlogPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2">
-            {categories.map((cat) => (
+            {dynamicCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}

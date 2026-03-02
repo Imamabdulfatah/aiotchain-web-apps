@@ -10,6 +10,7 @@ interface Post {
   id: number;
   title: string;
   slug: string;
+  category: string;
   createdAt: string;
 }
 
@@ -112,6 +113,7 @@ function ManagePostsPage() {
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold uppercase tracking-widest text-blue-500 bg-blue-50 px-2.5 py-1 rounded-lg">Draft</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg">{post.category || "General"}</span>
                   <span className="text-[10px] font-medium text-slate-400">{new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
                 <h2 className="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">

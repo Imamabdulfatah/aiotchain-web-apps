@@ -31,6 +31,9 @@ func ConnectDB() {
 		&models.Quiz{},
 		&models.Question{},
 		&models.Post{},
+		&models.Category{},
+		&models.PathCategory{},
+		&models.AssetCategory{},
 		&models.Asset{},
 		&models.Thread{},
 		&models.Comment{},
@@ -42,6 +45,7 @@ func ConnectDB() {
 		&models.CertificateTemplate{},
 		&models.Payment{},
 		&models.Subscriber{},
+		&models.Resume{},
 	)
 
 	if err != nil {

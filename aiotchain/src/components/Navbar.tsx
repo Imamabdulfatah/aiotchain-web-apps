@@ -55,6 +55,7 @@ export default function Navbar() {
     { name: "Alur Belajar", href: "/quiz" },
     { name: "Asset 3D", href: "/assets" },
     { name: "Komunitas", href: "/community" },
+    { name: "Game Logika", href: "/game" },
     { name: "Berlangganan", href: "/pricing" },
   ];
 

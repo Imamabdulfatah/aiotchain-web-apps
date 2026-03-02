@@ -37,6 +37,8 @@ interface LearningPath {
   title: string;
   description: string;
   difficulty: string;
+  categoryId?: number;
+  category?: { name: string };
   thumbnail: string;
   duration: number;
   certBg: string;
@@ -60,6 +62,7 @@ export default function PathEditorPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingCert, setIsUploadingCert] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+  const [pathCategories, setPathCategories] = useState<{id: number, name: string}[]>([]);
 
   // New Chapter/Lesson states
   const [isAddingChapter, setIsAddingChapter] = useState(false);
@@ -76,8 +79,20 @@ export default function PathEditorPage() {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const data = await fetchAPI<{id: number, name: string}[]>("/admin/path-categories");
+      setPathCategories(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    if (id) loadPath();
+    if (id) {
+      loadPath();
+      loadCategories();
+    }
   }, [id]);
 
   const handleUpdateBasicInfo = async (e: React.FormEvent) => {
@@ -186,6 +201,21 @@ export default function PathEditorPage() {
                       className="w-full px-5 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 font-bold text-slate-700"
                    />
                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kategori Teknologi</label>
+                      <select 
+                        value={path.categoryId || ""}
+                        onChange={(e) => setPath({...path, categoryId: e.target.value ? Number(e.target.value) : undefined})}
+                        className="w-full px-5 py-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 font-bold text-slate-700 font-sans"
+                      >
+                         <option value="">Pilih Kategori</option>
+                         {pathCategories.map((cat) => (
+                           <option key={cat.id} value={cat.id}>{cat.name}</option>
+                         ))}
+                      </select>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tingkat</label>

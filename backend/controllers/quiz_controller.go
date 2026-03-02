@@ -16,7 +16,14 @@ func GetLearningPaths(c *gin.Context) {
 	userID := c.Query("userId") // Bisa dari query atau nanti dari token di middleware
 
 	var paths []models.LearningPath
-	if err := config.DB.Find(&paths).Error; err != nil {
+	db := config.DB.Preload("Category")
+
+	categoryID := c.Query("categoryId")
+	if categoryID != "" {
+		db = db.Where("category_id = ?", categoryID)
+	}
+
+	if err := db.Find(&paths).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil learning path"})
 		return
 	}
@@ -69,7 +76,7 @@ func GetLearningPath(c *gin.Context) {
 	id := c.Param("id")
 	var path models.LearningPath
 
-	err := config.DB.Preload("Chapters", func(db *gorm.DB) *gorm.DB {
+	err := config.DB.Preload("Category").Preload("Chapters", func(db *gorm.DB) *gorm.DB {
 		return db.Order(`"order" ASC`)
 	}).Preload("Chapters.Lessons", func(db *gorm.DB) *gorm.DB {
 		return db.Order(`"order" ASC`)

@@ -7,11 +7,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface AssetCategory {
+  id: number;
+  name: string;
+}
+
 interface Asset {
   id: number;
   title: string;
   description: string;
-  category: string;
+  assetCategoryId: number;
+  assetCategory?: AssetCategory;
   fileUrl: string;
   thumbnail: string;
   images: string; // Comma-separated gallery images
@@ -20,23 +26,22 @@ interface Asset {
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("Semua");
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [newAsset, setNewAsset] = useState({ 
     title: "", 
     description: "", 
-    category: "Lainnya", 
+    assetCategoryId: 0, 
     fileUrl: "", 
     thumbnail: "",
     images: [] as string[] // Changed to array for local management
   });
   const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
-
-  const categories = ["Semua", "Robotik", "Elektronik", "3D Printing", "AI Model", "Lainnya"];
 
   // Debounce search input
   useEffect(() => {
@@ -47,8 +52,23 @@ export default function AssetsPage() {
   }, [searchTerm]);
 
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchAPI<AssetCategory[]>("/asset-categories");
+        setCategories(data);
+        if (data.length > 0) {
+          setNewAsset(prev => ({ ...prev, assetCategoryId: data[0].id }));
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
-    const categoryQuery = activeCategory !== "Semua" ? `category=${activeCategory}` : "";
+    const categoryQuery = activeCategoryId ? `categoryId=${activeCategoryId}` : "";
     const searchQuery = debouncedSearch ? `search=${debouncedSearch}` : "";
     const queryString = [categoryQuery, searchQuery].filter(Boolean).join("&");
     
@@ -56,7 +76,7 @@ export default function AssetsPage() {
       .then(setAssets)
       .catch((err) => console.error("Error fetching assets:", err))
       .finally(() => setLoading(false));
-  }, [activeCategory, debouncedSearch]);
+  }, [activeCategoryId, debouncedSearch]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'file' | 'thumb' | 'gallery') => {
     const file = e.target.files?.[0];
@@ -185,17 +205,27 @@ export default function AssetsPage() {
 
         {/* Category Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
+          <button
+            onClick={() => setActiveCategoryId(null)}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
+              activeCategoryId === null 
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
+                : "bg-white text-slate-500 border border-slate-200 hover:border-blue-500 hover:text-blue-600"
+            }`}
+          >
+            Semua
+          </button>
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              key={cat.id}
+              onClick={() => setActiveCategoryId(cat.id)}
               className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
-                activeCategory === cat 
+                activeCategoryId === cat.id
                   ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
                   : "bg-white text-slate-500 border border-slate-200 hover:border-blue-500 hover:text-blue-600"
               }`}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -228,7 +258,9 @@ export default function AssetsPage() {
                     </div>
                   </div>
                   <div className="p-6 flex-grow flex flex-col">
-                    <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">{asset.category}</div>
+                    <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">
+                      {asset.assetCategory?.name || "Lainnya"}
+                    </div>
                     <h2 className="text-xl font-bold text-foreground mb-2">{asset.title}</h2>
                     <p className="text-muted-foreground text-sm mb-6 flex-grow line-clamp-2">{asset.description}</p>
                     <Link 
@@ -285,12 +317,14 @@ export default function AssetsPage() {
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Kategori</label>
                   <select 
+                    required
                     className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground outline-none focus:border-blue-500 transition"
-                    value={newAsset.category}
-                    onChange={(e) => setNewAsset({ ...newAsset, category: e.target.value })}
+                    value={newAsset.assetCategoryId}
+                    onChange={(e) => setNewAsset({ ...newAsset, assetCategoryId: parseInt(e.target.value) })}
                   >
-                    {categories.filter(c => c !== "Semua").map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                    <option value="">Pilih Kategori</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                 </div>

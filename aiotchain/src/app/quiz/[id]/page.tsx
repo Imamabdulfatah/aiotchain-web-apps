@@ -23,6 +23,7 @@ interface LearningPath {
   title: string;
   description: string;
   difficulty: string;
+  category?: { name: string };
   duration: number;
   thumbnail: string;
   userCount: number;
@@ -130,6 +131,9 @@ export default function CourseIntroPage() {
           <div>
             <div className="flex gap-2 mb-6">
               <span className="px-3 py-1 bg-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest text-white">{path.difficulty}</span>
+              {path.category && (
+                <span className="px-3 py-1 bg-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest text-white">{path.category.name}</span>
+              )}
               <span className="px-3 py-1 bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-300">{path.duration} Menit</span>
               {path.isPremium && (
                  <span className="px-3 py-1 bg-amber-500 text-black rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">

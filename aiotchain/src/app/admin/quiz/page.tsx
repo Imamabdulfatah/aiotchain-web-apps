@@ -10,6 +10,7 @@ interface LearningPath {
   id: number;
   title: string;
   difficulty: string;
+  category?: { name: string };
   userCount: number;
 }
 
@@ -93,7 +94,12 @@ function ManageQuizPage() {
                   <tr key={path.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-5">
                       <p className="font-black text-slate-900 text-lg">{path.title}</p>
-                      <p className="text-xs text-slate-400">ID: {path.id}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400">ID: {path.id}</span>
+                        {path.category && (
+                          <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase">{path.category.name}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-5">
                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${

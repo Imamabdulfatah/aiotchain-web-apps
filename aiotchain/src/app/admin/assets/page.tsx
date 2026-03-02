@@ -6,11 +6,17 @@ import { compressImage } from "@/lib/image-utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface AssetCategory {
+  id: number;
+  name: string;
+}
+
 interface Asset {
   id: number;
   title: string;
   description: string;
-  category: string;
+  assetCategoryId: number;
+  assetCategory?: AssetCategory;
   fileUrl: string;
   thumbnail: string;
   images: string[];
@@ -19,12 +25,14 @@ interface Asset {
 
 export default function AdminAssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [newAsset, setNewAsset] = useState({ 
     title: "", 
     description: "", 
-    category: "Component", 
+    assetCategoryId: 0, 
     fileUrl: "", 
     thumbnail: "",
     images: [] as string[]
@@ -34,11 +42,38 @@ export default function AdminAssetsPage() {
   const token = getToken();
 
   useEffect(() => {
-    fetchAPI<Asset[]>("/assets")
-      .then(setAssets)
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    const loadData = async () => {
+      try {
+        const [assetsData, categoriesData] = await Promise.all([
+          fetchAPI<Asset[]>("/assets"),
+          fetchAPI<AssetCategory[]>("/admin/asset-categories")
+        ]);
+        setAssets(assetsData);
+        setCategories(categoriesData);
+        if (categoriesData.length > 0 && !editingId) {
+          setNewAsset(prev => ({ ...prev, assetCategoryId: categoriesData[0].id }));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
+
+  const handleEdit = (asset: Asset) => {
+    setEditingId(asset.id);
+    setNewAsset({
+      title: asset.title,
+      description: asset.description,
+      assetCategoryId: asset.assetCategoryId,
+      fileUrl: asset.fileUrl,
+      thumbnail: asset.thumbnail,
+      images: Array.isArray(asset.images) ? asset.images : (asset.images as any)?.split(",") || []
+    });
+    setShowAddModal(true);
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'file' | 'thumb' | 'gallery') => {
     const file = e.target.files?.[0];
@@ -92,15 +127,40 @@ export default function AdminAssetsPage() {
 
   const handleAddAsset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newAsset.assetCategoryId === 0) {
+      alert("Pilih kategori terlebih dahulu.");
+      return;
+    }
     try {
-      await fetchAPI("/admin/assets", {
-        method: "POST",
-        body: JSON.stringify(newAsset),
-      });
+      const payload = {
+        ...newAsset,
+        images: newAsset.images.join(",")
+      };
+
+      if (editingId) {
+        await fetchAPI(`/admin/assets/${editingId}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetchAPI("/admin/assets", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      }
       setShowAddModal(false);
+      setEditingId(null);
+      setNewAsset({
+        title: "",
+        description: "",
+        assetCategoryId: categories[0]?.id || 0,
+        fileUrl: "",
+        thumbnail: "",
+        images: []
+      });
       window.location.reload();
     } catch (err) {
-      alert("Gagal tambah asset: " + (err as Error).message);
+      alert("Gagal simpan asset: " + (err as Error).message);
     }
   };
 
@@ -124,7 +184,18 @@ export default function AdminAssetsPage() {
           <p className="text-slate-500 mt-1 uppercase tracking-widest text-[10px] font-bold">Total {assets.length} Assets</p>
         </div>
         <button 
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setEditingId(null);
+            setNewAsset({
+              title: "",
+              description: "",
+              assetCategoryId: categories[0]?.id || 0,
+              fileUrl: "",
+              thumbnail: "",
+              images: []
+            });
+            setShowAddModal(true);
+          }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center shadow-lg shadow-blue-500/20 transition-all active:scale-95"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,9 +227,11 @@ export default function AdminAssetsPage() {
                     <div>
                       <div className="font-bold text-slate-800 flex items-center gap-2">
                         {asset.title}
-                        <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase rounded-md border border-blue-100">
-                          {asset.category}
-                        </span>
+                        {asset.assetCategory && (
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase rounded-md border border-blue-100">
+                            {asset.assetCategory.name}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-slate-400 max-w-[200px] truncate flex items-center gap-2">
                         {asset.images?.length > 0 && (
@@ -176,14 +249,24 @@ export default function AdminAssetsPage() {
                 </td>
                 <td className="px-6 py-5 font-bold text-slate-600">{asset.downloadCount}</td>
                 <td className="px-6 py-5 text-right">
-                  <button 
-                    onClick={() => handleDelete(asset.id)}
-                    className="p-2 text-slate-300 hover:text-red-600 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  <div className="flex justify-end gap-3">
+                    <button 
+                      onClick={() => handleEdit(asset)}
+                      className="p-2 text-slate-300 hover:text-blue-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(asset.id)}
+                      className="p-2 text-slate-300 hover:text-red-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -195,8 +278,14 @@ export default function AdminAssetsPage() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20">
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-slate-900">Tambah Asset 3D</h2>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+              <h2 className="text-xl font-bold text-slate-900">{editingId ? "Edit Asset 3D" : "Tambah Asset 3D"}</h2>
+              <button 
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingId(null);
+                }} 
+                className="text-slate-400 hover:text-slate-600"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -216,14 +305,15 @@ export default function AdminAssetsPage() {
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Kategori</label>
                   <select 
+                    required
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-blue-500"
-                    value={newAsset.category}
-                    onChange={(e) => setNewAsset({ ...newAsset, category: e.target.value })}
+                    value={newAsset.assetCategoryId}
+                    onChange={(e) => setNewAsset({ ...newAsset, assetCategoryId: parseInt(e.target.value) })}
                   >
-                    <option value="Component">Component</option>
-                    <option value="Module">Module</option>
-                    <option value="Full Build">Full Build</option>
-                    <option value="Electronic">Electronic</option>
+                    <option value="">Pilih Kategori</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -286,7 +376,7 @@ export default function AdminAssetsPage() {
                 disabled={isUploading || !newAsset.fileUrl || !newAsset.thumbnail}
                 className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition disabled:bg-slate-300 shadow-xl shadow-blue-500/10"
               >
-                {isUploading ? "Mengunggah..." : "Simpan Asset"}
+                {isUploading ? "Mengunggah..." : (editingId ? "Perbarui Asset" : "Simpan Asset")}
               </button>
             </form>
           </div>

@@ -18,7 +18,7 @@ interface PostForm {
   imageUrl?: string;
 }
 
-const CATEGORIES = ["AI", "IoT", "Chain", "Tutorial", "Wawasan"];
+
 
 function EditPostPage() {
   const router = useRouter();
@@ -35,6 +35,7 @@ function EditPostPage() {
     category: "AI",
     imageUrl: "",
   });
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([]);
 
   // 1. Ambil data asli dari Backend Go
   useEffect(() => {
@@ -62,7 +63,23 @@ function EditPostPage() {
       }
     };
 
-    if (params.id) fetchPostData();
+    const fetchCategories = async () => {
+      try {
+        const data = await fetchAPI<{id: number, name: string}[]>("/admin/categories");
+        if (data && data.length > 0) {
+          setDynamicCategories(data.map(c => c.name));
+        } else {
+          setDynamicCategories(["AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+        }
+      } catch (err) {
+        setDynamicCategories(["AI", "IoT", "Chain", "Tutorial", "Wawasan"]);
+      }
+    };
+
+    if (params.id) {
+      fetchPostData();
+      fetchCategories();
+    }
   }, [params.id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -193,7 +210,7 @@ function EditPostPage() {
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((cat) => (
+                  {dynamicCategories.map((cat) => (
                     <button
                       key={cat}
                       type="button"

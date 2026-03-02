@@ -37,6 +37,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const allMenuItems = [
     { name: "Dashboard", href: "/admin", icon: "📊", roles: ["admin", "super_admin"] },
     { name: "Kelola Posts", href: "/admin/posts", icon: "📝", roles: ["admin", "super_admin"] },
+    { name: "Kelola Kategori", href: "/admin/categories", icon: "🏷️", roles: ["super_admin"] },
+    { name: "Kategori Alur", href: "/admin/path-categories", icon: "📚", roles: ["super_admin"] },
+    { name: "Kategori Asset", href: "/admin/asset-categories", icon: "🧊", roles: ["super_admin"] },
     { name: "Alur Belajar", href: "/admin/quiz", icon: "🎓", roles: ["admin", "super_admin"] },
     { name: "Proyek Siswa", href: "/admin/submissions", icon: "📁", roles: ["admin", "super_admin"] },
     { name: "Asset 3D", href: "/admin/assets", icon: "🧊", roles: ["super_admin"] },
