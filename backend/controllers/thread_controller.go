@@ -191,3 +191,35 @@ func UpdateThread(c *gin.Context) {
 
 	c.JSON(http.StatusOK, thread)
 }
+
+// Get Community Leaderboard
+func GetCommunityLeaderboard(c *gin.Context) {
+	type LeaderboardUser struct {
+		UserID       uint   `json:"user_id"`
+		Username     string `json:"username"`
+		PostCount    int64  `json:"post_count"`
+		CommentCount int64  `json:"comment_count"`
+		TotalScore   int64  `json:"total_score"`
+	}
+
+	var leaderboard []LeaderboardUser
+
+	// Calculate scores: Thread = 10 pts, Comment = 2 pts
+	config.DB.Raw(`
+		SELECT 
+			u.id as user_id, 
+			u.username, 
+			COUNT(DISTINCT t.id) as post_count, 
+			COUNT(DISTINCT c.id) as comment_count,
+			(COUNT(DISTINCT t.id) * 10 + COUNT(DISTINCT c.id) * 2) as total_score
+		FROM users u
+		LEFT JOIN threads t ON t.user_id = u.id
+		LEFT JOIN comments c ON c.user_id = u.id
+		GROUP BY u.id, u.username
+		HAVING (COUNT(DISTINCT t.id) + COUNT(DISTINCT c.id)) > 0
+		ORDER BY total_score DESC
+		LIMIT 5
+	`).Scan(&leaderboard)
+
+	c.JSON(http.StatusOK, leaderboard)
+}

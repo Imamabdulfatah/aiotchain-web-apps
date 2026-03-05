@@ -21,6 +21,8 @@ import {
     Code,
     Heading1,
     Heading2,
+    Heading3,
+    Heading4,
     Image as ImageIcon,
     Italic,
     Link as LinkIcon,
@@ -85,7 +87,7 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4],
         },
       }),
       Underline,
@@ -133,7 +135,7 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] text-slate-700',
+        class: 'prose prose-slate max-w-none focus:outline-none text-slate-700 w-full',
       },
     },
   });
@@ -255,6 +257,20 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
           title="Heading 2"
         >
           <Heading2 size={18} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={`p-2 rounded-lg transition-all ${editor.isActive('heading', { level: 3 }) ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 text-slate-400'}`}
+          title="Heading 3"
+        >
+          <Heading3 size={18} />
+        </button>
+        <button
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          className={`p-2 rounded-lg transition-all ${editor.isActive('heading', { level: 4 }) ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 text-slate-400'}`}
+          title="Heading 4"
+        >
+          <Heading4 size={18} />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}

@@ -1,5 +1,6 @@
 "use client";
 
+import Badge from "@/components/Badge";
 import { fetchAPI } from "@/lib/api";
 import { getToken, isLoggedIn } from "@/lib/auth";
 import { compressImage } from "@/lib/image-utils";
@@ -21,6 +22,11 @@ interface UserToken {
   username: string;
 }
 
+interface LeaderboardUser {
+  user_id: number;
+  username: string;
+}
+
 interface CommentSectionProps {
   postId?: number;
   assetId?: number;
@@ -38,6 +44,11 @@ export default function CommentSection({ postId, assetId, threadId }: CommentSec
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+
+  const getBadgeRank = (username: string) => {
+    return leaderboard.findIndex(u => u.username === username);
+  };
 
   useEffect(() => {
     loadComments();
@@ -54,7 +65,12 @@ export default function CommentSection({ postId, assetId, threadId }: CommentSec
         }
       }
     }
-  }, [postId, assetId]);
+
+    // Fetch leaderboard for badges
+    fetchAPI<LeaderboardUser[]>("/threads/leaderboard")
+      .then(data => setLeaderboard(data || []))
+      .catch(err => console.error("Error fetching leaderboard:", err));
+  }, [postId, assetId, threadId]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -255,7 +271,10 @@ export default function CommentSection({ postId, assetId, threadId }: CommentSec
                     {comment.username.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{comment.username}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{comment.username}</p>
+                      <Badge rank={getBadgeRank(comment.username)} size="sm" />
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {new Date(comment.created_at).toLocaleDateString('id-ID', { 
                         year: 'numeric', 

@@ -35,3 +35,13 @@ export const formatContent = (content: string) => {
 
   return formatted;
 };
+
+export const getBadge = (rank: number) => {
+  switch (rank) {
+    case 0: return { label: "Elite", color: "bg-amber-500", icon: "👑" };
+    case 1: return { label: "Top", color: "bg-blue-500", icon: "⭐" };
+    case 2: return { label: "Active", color: "bg-emerald-500", icon: "🔥" };
+    case 3: return { label: "Rising", color: "bg-purple-500", icon: "🚀" };
+    default: return null;
+  }
+};

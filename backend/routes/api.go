@@ -91,6 +91,7 @@ func SetupRouter() *gin.Engine {
 		public.PUT("/threads/:id", middleware.AuthMiddleware(), controllers.UpdateThread)
 		public.DELETE("/threads/:id", middleware.AuthMiddleware(), controllers.DeleteThread)
 		public.GET("/threads/:id/comments", controllers.GetCommentsByThread)
+		public.GET("/threads/leaderboard", controllers.GetCommunityLeaderboard)
 
 		// Comments (Auth Required)
 		public.POST("/comments", middleware.AuthMiddleware(), controllers.CreateComment)

@@ -64,7 +64,11 @@ export default function RichTextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3, 4],
+        },
+      }),
       Underline,
       TextStyle,
       FontSize,
@@ -99,8 +103,7 @@ export default function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class:
-          "prose prose-slate max-w-none min-h-[400px] px-6 py-4 focus:outline-none text-slate-900",
+        class: "prose prose-slate max-w-none focus:outline-none text-slate-900 w-full",
       },
     },
   });
@@ -185,9 +188,9 @@ export default function RichTextEditor({
   );
 
   return (
-    <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white">
+    <div className="flex flex-col space-y-4">
       {/* Toolbar */}
-      <div className="border-b border-slate-200 bg-slate-50 p-3 flex flex-wrap gap-2">
+      <div className="border border-slate-200 rounded-2xl bg-slate-50 p-3 flex flex-wrap gap-2 sticky top-20 z-10 shadow-sm backdrop-blur-md bg-white/80">
         {/* Headings */}
         <div className="flex gap-1 border-r border-slate-200 pr-2">
           <ToolbarButton
@@ -210,6 +213,13 @@ export default function RichTextEditor({
             title="Heading 3"
           >
             <span className="font-bold text-sm">H3</span>
+          </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+            active={editor.isActive("heading", { level: 4 })}
+            title="Heading 4"
+          >
+            <span className="font-bold text-sm">H4</span>
           </ToolbarButton>
         </div>
 
@@ -390,7 +400,10 @@ export default function RichTextEditor({
       </div>
 
       {/* Editor Content */}
-      <div className="bg-white">
+      <div 
+        className="bg-white rounded-3xl border border-slate-200 shadow-sm min-h-[500px] transition-all duration-300"
+        style={{ padding: `48px` }}
+      >
         <EditorContent editor={editor} />
       </div>
     </div>

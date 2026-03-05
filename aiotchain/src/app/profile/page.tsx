@@ -1,5 +1,6 @@
 "use client";
 
+import Badge from "@/components/Badge";
 import CertificateModal from "@/components/CertificateModal";
 import EditProfileModal from "@/components/EditProfileModal";
 import Navbar from "@/components/Navbar";
@@ -84,6 +85,12 @@ function ProfileContent() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [statLoading, setStatLoading] = useState(true);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+
+  interface LeaderboardUser {
+    user_id: number;
+    username: string;
+  }
 
   const [selectedPath, setSelectedPath] = useState<LearningPath | null>(null);
   const [showCertificate, setShowCertificate] = useState(false);
@@ -170,6 +177,10 @@ function ProfileContent() {
         }
       });
       setMaterials(materialsRes || []);
+
+      // Fetch leaderboard for badges
+      const leaderboardRes = await fetchAPI<LeaderboardUser[]>("/threads/leaderboard");
+      setLeaderboard(leaderboardRes || []);
     } catch (error) {
       console.error("Error loading profile data:", error);
     } finally {
@@ -227,9 +238,12 @@ function ProfileContent() {
                         <span className="inline-block px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 italic">
                             Member AIoT Academy
                         </span>
-                        <h1 className="text-5xl font-black text-foreground tracking-tight leading-none mb-2">
-                            {profile?.username || user?.username}
-                        </h1>
+                        <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
+                          <h1 className="text-5xl font-black text-foreground tracking-tight leading-none">
+                              {profile?.username || user?.username}
+                          </h1>
+                          <Badge rank={leaderboard.findIndex(u => u.username === (profile?.username || user?.username))} size="lg" />
+                        </div>
                         <p className="text-muted-foreground font-bold flex items-center justify-center md:justify-start gap-2 italic">
                             {profile?.email || "email@example.com"}
                         </p>

@@ -56,7 +56,7 @@ export default function Navbar() {
     { name: "Asset 3D", href: "/assets" },
     { name: "Komunitas", href: "/community" },
     { name: "Game Logika", href: "/game" },
-    { name: "Berlangganan", href: "/pricing" },
+    // { name: "Berlangganan", href: "/pricing" },
   ];
 
   return (

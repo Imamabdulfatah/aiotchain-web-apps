@@ -213,5 +213,117 @@ export const LOGIC_GATE_LEVELS: Level[] = [
       { from: 1, to: 2, pin: 1 },
       { from: 2, to: "output" }
     ]
+  },
+  {
+    id: 11,
+    title: "Enigma NAND Ganda",
+    description: "Gunakan dua gerbang NAND untuk menghasilkan output TINGGI (1) dari input (1, 1, 0). Ingat sifat NAND: hanya 0 jika semua input 1.",
+    inputs: [
+      { id: "A", value: 1 },
+      { id: "B", value: 1 },
+      { id: "C", value: 0 },
+    ],
+    targetOutput: 1,
+    allowedGates: ["NAND"],
+    gateLimit: 2,
+    difficulty: "Medium",
+    connections: [
+      { from: "A", to: 0, pin: 1 },
+      { from: "B", to: 0, pin: 2 },
+      { from: 0, to: 1, pin: 1 },
+      { from: "C", to: 1, pin: 2 },
+      { from: 1, to: "output" }
+    ]
+  },
+  {
+    id: 12,
+    title: "Filter Sinyal NOR",
+    description: "Hasilkan output 1 dari input (0, 0, 1) menggunakan kombinasi gerbang NOR. Tantangan: minimalisir penggunaan gerbang.",
+    inputs: [
+      { id: "A", value: 0 },
+      { id: "B", value: 0 },
+      { id: "C", value: 1 },
+    ],
+    targetOutput: 1,
+    allowedGates: ["NOR", "OR"],
+    gateLimit: 2,
+    difficulty: "Medium",
+    connections: [
+      { from: "A", to: 0, pin: 1 },
+      { from: "B", to: 0, pin: 2 },
+      { from: 0, to: 1, pin: 1 },
+      { from: "C", to: 1, pin: 2 },
+      { from: 1, to: "output" }
+    ]
+  },
+  {
+    id: 13,
+    title: "Konvergensi Logika",
+    description: "Empat input! Ubah (1, 1, 0, 0) menjadi output 1 menggunakan gerbang apa pun. Waspada terhadap batas maksimal gerbang.",
+    inputs: [
+      { id: "A", value: 1 },
+      { id: "B", value: 1 },
+      { id: "C", value: 0 },
+      { id: "D", value: 0 },
+    ],
+    targetOutput: 1,
+    allowedGates: ["AND", "OR", "XOR", "NAND", "NOR"],
+    gateLimit: 3,
+    difficulty: "Hard",
+    connections: [
+      { from: "A", to: 0, pin: 1 },
+      { from: "B", to: 0, pin: 2 },
+      { from: "C", to: 1, pin: 1 },
+      { from: "D", to: 1, pin: 2 },
+      { from: 0, to: 2, pin: 1 },
+      { from: 1, to: 2, pin: 2 },
+      { from: 2, to: "output" }
+    ]
+  },
+  {
+    id: 14,
+    title: "Inversi Strategis",
+    description: "Dapatkan output 0 dari input (0, 0, 0) menggunakan paling sedikit 3 gerbang. Bagaimana cara membalikkan kondisi total?",
+    inputs: [
+      { id: "A", value: 0 },
+      { id: "B", value: 0 },
+      { id: "C", value: 0 },
+    ],
+    targetOutput: 0,
+    allowedGates: ["NOT", "NAND", "NOR", "AND", "OR"],
+    gateLimit: 3,
+    difficulty: "Hard",
+    connections: [
+      { from: "A", to: 0, pin: 1 },
+      { from: "B", to: 0, pin: 2 },
+      { from: 0, to: 1, pin: 1 },
+      { from: "C", to: 1, pin: 2 },
+      { from: 1, to: 2, pin: 1 },
+      { from: 2, to: "output" }
+    ]
+  },
+  {
+    id: 15,
+    title: "Paradoks Arsitek",
+    description: "Level Maksimal: Hasilkan output 1 dari input (1, 0, 1, 0) menggunakan gerbang XOR dan NAND saja dalam struktur yang presisi.",
+    inputs: [
+      { id: "A", value: 1 },
+      { id: "B", value: 0 },
+      { id: "C", value: 1 },
+      { id: "D", value: 0 },
+    ],
+    targetOutput: 1,
+    allowedGates: ["XOR", "NAND"],
+    gateLimit: 3,
+    difficulty: "Hard",
+    connections: [
+      { from: "A", to: 0, pin: 1 },
+      { from: "B", to: 0, pin: 2 },
+      { from: "C", to: 1, pin: 1 },
+      { from: "D", to: 1, pin: 2 },
+      { from: 0, to: 2, pin: 1 },
+      { from: 1, to: 2, pin: 2 },
+      { from: 2, to: "output" }
+    ]
   }
 ];

@@ -1,5 +1,6 @@
 "use client";
 
+import Badge from "@/components/Badge";
 import CommentSection from "@/components/CommentSection";
 import Navbar from "@/components/Navbar";
 import { fetchAPI } from "@/lib/api";
@@ -23,6 +24,11 @@ interface ThreadDetail {
   };
 }
 
+interface LeaderboardUser {
+  user_id: number;
+  username: string;
+}
+
 interface UserToken {
   user_id: number;
   username: string;
@@ -35,6 +41,7 @@ export default function ThreadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -54,7 +61,15 @@ export default function ThreadDetailPage() {
         }
       }
     }
+
+    fetchAPI<LeaderboardUser[]>("/threads/leaderboard")
+      .then(data => setLeaderboard(data || []))
+      .catch(err => console.error("Error fetching leaderboard:", err));
   }, [id]);
+
+  const getBadgeRank = (username: string) => {
+    return leaderboard.findIndex(u => u.username === username);
+  };
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this thread? This action cannot be undone.")) {
@@ -127,7 +142,10 @@ export default function ThreadDetailPage() {
                 {thread.user.username.charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col">
-                <span className="text-foreground font-bold">{thread.user.username}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-foreground font-bold">{thread.user.username}</span>
+                  <Badge rank={getBadgeRank(thread.user.username)} size="md" />
+                </div>
                 <span className="text-muted-foreground text-sm font-medium">
                   Diposting pada {new Date(thread.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' })}
                 </span>
